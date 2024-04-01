@@ -79,11 +79,9 @@ Node* remover(Node* raiz, int chave) {
         return NULL;
     } else {
         if (raiz->codigo == chave) {
-            // Imprime os detalhes do nó que está sendo removido
-            printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
-
             // Remove nós folhas
             if (raiz->esquerda == NULL && raiz->direita == NULL) {
+                printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
                 free(raiz);
                 return NULL;
             } else {
@@ -94,6 +92,7 @@ Node* remover(Node* raiz, int chave) {
                         aux = raiz->esquerda;
                     else
                         aux = raiz->direita;
+                    printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
                     free(raiz);
                     return aux;
                 } else {
@@ -102,8 +101,10 @@ Node* remover(Node* raiz, int chave) {
                     while (aux->direita != NULL)
                         aux = aux->direita;
                     raiz->codigo = aux->codigo;
-                    aux->codigo = chave;
-                    raiz->esquerda = remover(raiz->esquerda, chave);
+                    strcpy(raiz->nome, aux->nome); // Atualiza o nome
+                    raiz->quantidade = aux->quantidade; // Atualiza a quantidade
+                    raiz->preco = aux->preco; // Atualiza o preço
+                    raiz->esquerda = remover(raiz->esquerda, aux->codigo); // Remove o nó sucessor
                     return raiz;
                 }
             }
