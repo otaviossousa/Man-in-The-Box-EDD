@@ -14,7 +14,17 @@ typedef struct Node {
 
 // Função para criar nó
 Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
-    Node* novoNo = (Node*)malloc(sizeof(Node));
+    if (codigo < 0 || quantidade < 0 || preco < 0) {
+        printf("Nao e possivel criar o no com valores negativos.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    Node* novoNo = (Node*)calloc(1, sizeof(Node)); // Inicializa a memória alocada com zero
+    if (novoNo == NULL) {
+        printf("Erro na alocacao de memoria.\n");
+        exit(EXIT_FAILURE);
+    }
+
     novoNo->codigo = codigo;
     strcpy(novoNo->nome, nome);
     novoNo->quantidade = quantidade;
@@ -24,10 +34,21 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
     return novoNo;
 }
 
-// Função para inserir um nó na árvore
 Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float preco) {
+    if (codigo < 0 || quantidade < 0 || preco < 0) {
+        printf("Nao e possivel inserir um produto com valores negativos.\n");
+        return raiz; // Retorna a raiz original sem inserir o produto
+    }
+
     if (raiz == NULL) {
-        return criarNo(codigo, nome, quantidade, preco);
+        raiz = criarNo(codigo, nome, quantidade, preco);
+        printf("Produto inserido com sucesso!\n");
+        return raiz;
+    }
+
+    if (codigo == raiz->codigo) {
+        printf("Produto com codigo %d ja existe na arvore.\n", codigo);
+        return raiz; // Retorna a raiz original sem inserir o produto duplicado
     }
 
     if (codigo < raiz->codigo) {
@@ -35,7 +56,6 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
     } else if (codigo > raiz->codigo) {
         raiz->direita = inserir(raiz->direita, codigo, nome, quantidade, preco);
     }
-
     // Balanceamento da árvore (a ser implementado)
     return raiz;
 }
@@ -53,13 +73,15 @@ Node* buscar(Node* raiz, int codigo) {
     }
 }
 
-// Função para remover um nó da árvore
 Node* remover(Node* raiz, int chave) {
     if (raiz == NULL) {
         printf("Valor nao encontrado!\n");
         return NULL;
     } else {
         if (raiz->codigo == chave) {
+            // Imprime os detalhes do nó que está sendo removido
+            printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+
             // Remove nós folhas
             if (raiz->esquerda == NULL && raiz->direita == NULL) {
                 free(raiz);
@@ -179,7 +201,6 @@ int main() {
                 printf("Digite o preco do produto:");
                 scanf("%f", &preco);
                 raiz = inserir(raiz, codigo, nome, quantidade, preco);
-                printf("Produto inserido com sucesso!\n");
                 break;
             }
             case 2: {
@@ -196,7 +217,7 @@ int main() {
                 Node* produtoBuscado = buscar(raiz, codigoBuscar);
                 if (produtoBuscado != NULL) {
                     printf("Produto encontrado:\n");
-                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco:%.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
+                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco:R$ %.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
                 } else {
                     printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
                 }
@@ -208,19 +229,17 @@ int main() {
                 scanf("%f", &minPreco);
                 printf("Digite o preco maximo:");
                 scanf("%f", &maxPreco);
-                printf("Produtos com preco entre %.2f e %.2f:\n", minPreco, maxPreco);
+                printf("Produtos com preco entre R$ %.2f e R$ %.2f:\n", minPreco, maxPreco);
                 listarFaixaPreco(raiz, minPreco, maxPreco);
                 break;
             }
-            case 5: {
+            case 5:
                 printf("\nValor total do estoque: R$%.2f\n", calcularValorTotal(raiz));
                 break;
-            }
-            case 6: {
+            case 6:
                 printf("\nArvore de produtos:\n");
                 imprimirArvore(raiz, 0);
                 break;
-            }
             default:
                 printf("Opcao invalida!\n");
         }
