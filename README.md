@@ -1,11 +1,10 @@
-Trabalho 1 - Árvore binária e suas operações
+#Trabalho 1 - Árvore binária e suas operações.
+
 Este projeto consiste na implementação de um sistema de gerenciamento de estoque para uma loja de varejo, utilizando árvores binárias em C. A seguir estão as especificações das funcionalidades a serem implementadas:
 
-Questão 1: Sistema de Gerenciamento de Estoque
-<aside>
-📢 *Alunos sorteados: 2, 3, 6, 9, 10, 11, 12, 13, 15, 16, 20, 21;*
-</aside>
-Especificações
+##Questão 1: Sistema de Gerenciamento de Estoque
+
+###Especificações
 Cada nó da árvore deve representar um produto, com os seguintes campos: código do produto, nome do produto, quantidade em estoque e preço unitário.
 
 Implementar uma função para inserir um novo produto na árvore, mantendo-a balanceada. A árvore deve ser mantida balanceada para que não esteja desbalanceada em mais de 1 nível.
