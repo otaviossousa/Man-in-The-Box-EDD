@@ -152,13 +152,13 @@ int main() {
 
     do {
         printf("\n=== Menu ===\n");
+        printf("0. Sair\n");
         printf("1. Inserir produto\n");
         printf("2. Remover produto\n");
         printf("3. Buscar produto\n");
-        printf("4. Listar produtos com preço dentro de uma faixa\n");
+        printf("4. Listar produtos com preco dentro de uma faixa\n");
         printf("5. Calcular valor total do estoque\n");
-        printf("6. Imprimir árvore de produtos\n");
-        printf("0. Sair\n");
+        printf("6. Imprimir arvore de produtos\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -170,13 +170,13 @@ int main() {
                 int codigo, quantidade;
                 float preco;
                 char nome[50];
-                printf("\nDigite o codigo do produto: ");
+                printf("\nDigite o codigo do produto:");
                 scanf("%d", &codigo);
-                printf("Digite o nome do produto: ");
+                printf("Digite o nome do produto:");
                 scanf("%s", nome);
-                printf("Digite a quantidade do produto: ");
+                printf("Digite a quantidade do produto:");
                 scanf("%d", &quantidade);
-                printf("Digite o preco do produto: ");
+                printf("Digite o preco do produto:");
                 scanf("%f", &preco);
                 raiz = inserir(raiz, codigo, nome, quantidade, preco);
                 printf("Produto inserido com sucesso!\n");
@@ -184,19 +184,19 @@ int main() {
             }
             case 2: {
                 int codigoRemover;
-                printf("\nDigite o codigo do produto a ser removido: ");
+                printf("\nDigite o codigo do produto a ser removido:");
                 scanf("%d", &codigoRemover);
                 raiz = remover(raiz, codigoRemover);
                 break;
             }
             case 3: {
                 int codigoBuscar;
-                printf("\nDigite o codigo do produto a ser buscado: ");
+                printf("\nDigite o codigo do produto a ser buscado:");
                 scanf("%d", &codigoBuscar);
                 Node* produtoBuscado = buscar(raiz, codigoBuscar);
                 if (produtoBuscado != NULL) {
                     printf("Produto encontrado:\n");
-                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
+                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco:%.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
                 } else {
                     printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
                 }
@@ -204,9 +204,9 @@ int main() {
             }
             case 4: {
                 float minPreco, maxPreco;
-                printf("\nDigite o preco minimo: ");
+                printf("\nDigite o preco minimo:");
                 scanf("%f", &minPreco);
-                printf("Digite o preco maximo: ");
+                printf("Digite o preco maximo:");
                 scanf("%f", &maxPreco);
                 printf("Produtos com preco entre %.2f e %.2f:\n", minPreco, maxPreco);
                 listarFaixaPreco(raiz, minPreco, maxPreco);
