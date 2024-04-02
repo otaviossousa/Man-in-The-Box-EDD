@@ -55,14 +55,6 @@ No* inserir(No *raiz, int valor) {
     }
 }
 
-// Função para contar o número de nós na árvore
-int tamanho(No *raiz) {
-    if (raiz == NULL)
-        return 0;
-    else
-        return 1 + tamanho(raiz->esquerda) + tamanho(raiz->direita);
-}
-
 // Função para verificar se um valor está presente na árvore
 int buscar(No *raiz, int chave) {
     if (raiz == NULL)
@@ -79,21 +71,6 @@ int buscar(No *raiz, int chave) {
     }
 }
 
-// Função para buscar um nó específico na árvore
-No* buscarNo(No *raiz, int chave) {
-    if (raiz == NULL)
-        return NULL;
-    else {
-        if (raiz->conteudo == chave)
-            return raiz;
-        else {
-            if (chave < raiz->conteudo)
-                return buscarNo(raiz->esquerda, chave);
-            else
-                return buscarNo(raiz->direita, chave);
-        }
-    }
-}
 
 // Função para remover um nó da árvore
 No* remover(No *raiz, int chave) {
@@ -144,6 +121,30 @@ void imprimir(No *raiz) {
         imprimir(raiz->esquerda);
         printf("%d ", raiz->conteudo);
         imprimir(raiz->direita);
+    }
+}
+
+// Função para calcular o tamanho da árvore (número de nós)
+int tamanho(No * raiz) {
+    if (raiz == NULL)
+        return 0;
+    else
+        return 1 + tamanho(raiz->esquerda) + tamanho(raiz->direita);
+}
+
+// Função para buscar um nó específico na árvore
+No * buscarNo(No *raiz, int chave) {
+    if (raiz == NULL)
+        return NULL;
+    else {
+        if (raiz->conteudo == chave)
+            return raiz;
+        else {
+            if (chave < raiz->conteudo)
+                return buscarNo(raiz->esquerda, chave);
+            else
+                return buscarNo(raiz->direita, chave);
+        }
     }
 }
 

@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Definição da estrutura do nó da árvore
+/* Definição da estrutura do nó da árvore
+ * 1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
+ * quantidade em estoque, preço unitário.*/
 typedef struct Node {
     int codigo;
     char nome[50];
@@ -34,6 +36,13 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
     return novoNo;
 }
 
+/* Função para inserir elementos na árvore
+ *
+ * 2 - Implemente uma função para inserir um novo produto na árvore, mantendo-a balanceada. Garanta que a árvore
+ * não esteja desbalanceada em mais de 1 nível.
+ *
+ * 8 - Garanta que não é possível inserir produtos com códigos duplicados na árvore, nem quantidades ou
+ * preços menores que zero.*/
 Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float preco) {
     if (codigo < 0 || quantidade < 0 || preco < 0) {
         printf("Nao e possivel inserir um produto com valores negativos.\n");
@@ -60,19 +69,9 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
     return raiz;
 }
 
-// Função para buscar um produto pelo código
-Node* buscar(Node* raiz, int codigo) {
-    if (raiz == NULL || raiz->codigo == codigo) {
-        return raiz;
-    }
-
-    if (codigo < raiz->codigo) {
-        return buscar(raiz->esquerda, codigo);
-    } else {
-        return buscar(raiz->direita, codigo);
-    }
-}
-
+/* Função para remover um elemento da árvore
+ * 3 - Implemente uma função para remover um produto da árvore, atualizando a estrutura para manter
+ * a propriedade da árvore binária.*/
 Node* remover(Node* raiz, int chave) {
     if (raiz == NULL) {
         printf("Valor nao encontrado!\n");
@@ -119,16 +118,37 @@ Node* remover(Node* raiz, int chave) {
     return NULL;
 }
 
-// Função para calcular o tamanho da árvore (número de nós)
-int tamanho(Node* raiz) {
-    if (raiz == NULL)
-        return 0;
-    else
-        return 1 + tamanho(raiz->esquerda) + tamanho(raiz->direita);
+/* Função para buscar um produto pelo código
+ * 4 Implemente uma função para buscar um produto na árvore pelo seu código.*/
+Node* buscar(Node* raiz, int codigo) {
+    if (raiz == NULL || raiz->codigo == codigo) {
+        return raiz;
+    }
+
+    if (codigo < raiz->codigo) {
+        return buscar(raiz->esquerda, codigo);
+    } else {
+        return buscar(raiz->direita, codigo);
+    }
+}
+
+/* Função para listar produtos com quantidade menor que um valor especificado
+ * 5 - Implemente uma função para listar todos os produtos com uma quantidade menor que a informada pelo usuário.*/
+void listarQuantidadeMenor(Node* raiz, int valor) {
+    if (raiz == NULL) {
+        return;
+    }
+
+    listarQuantidadeMenor(raiz->esquerda, valor);
+    if (raiz->quantidade < valor) {
+        printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+    }
+    listarQuantidadeMenor(raiz->direita, valor);
 }
 
 
-// Função para listar produtos com preço dentro de uma faixa especificada
+/* Função para listar produtos com preço dentro de uma faixa especificada
+ * 6 - Implemente uma função para listar todos os produtos em uma faixa de preço especificada pelo usuário.*/
 void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
     if (raiz == NULL) {
         return;
@@ -141,7 +161,8 @@ void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
     listarFaixaPreco(raiz->direita, minPreco, maxPreco);
 }
 
-// Função para calcular o valor total do estoque
+/* Função para calcular o valor total do estoque
+ * 7 - Implemente uma função para calcular o valor total do estoque da loja.*/
 float calcularValorTotal(Node* raiz) {
     if (raiz == NULL) {
         return 0;
@@ -150,7 +171,8 @@ float calcularValorTotal(Node* raiz) {
     return raiz->preco * raiz->quantidade + calcularValorTotal(raiz->esquerda) + calcularValorTotal(raiz->direita);
 }
 
-// Função para imprimir a árvore de forma intuitiva
+/* Função para imprimir a árvore
+ * 10 - O código deve implementar uma maneira de exibir a árvore de maneira intuitiva no console.*/
 void imprimirArvore(Node* raiz, int espacos) {
     if (raiz == NULL) {
         return;
