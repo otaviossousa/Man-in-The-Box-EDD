@@ -202,8 +202,9 @@ int main() {
         printf("2. Remover produto\n");
         printf("3. Buscar produto\n");
         printf("4. Listar produtos com preco dentro de uma faixa\n");
-        printf("5. Calcular valor total do estoque\n");
-        printf("6. Imprimir arvore de produtos\n");
+        printf("5. Listar produtos com quantidade menor que um valor especificado\n");
+        printf("6. Calcular valor total do estoque\n");
+        printf("7. Imprimir arvore de produtos\n");
         printf("Escolha uma opcao: ");
         scanf("%d", &opcao);
 
@@ -240,7 +241,7 @@ int main() {
                 Node* produtoBuscado = buscar(raiz, codigoBuscar);
                 if (produtoBuscado != NULL) {
                     printf("Produto encontrado:\n");
-                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco:R$ %.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
+                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
                 } else {
                     printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
                 }
@@ -256,10 +257,18 @@ int main() {
                 listarFaixaPreco(raiz, minPreco, maxPreco);
                 break;
             }
-            case 5:
-                printf("\nValor total do estoque: R$%.2f\n", calcularValorTotal(raiz));
+            case 5: {
+                int valor;
+                printf("\nDigite a quantidade maxima:");
+                scanf("%d", &valor);
+                printf("Produtos com quantidade menor que %d:\n", valor);
+                listarQuantidadeMenor(raiz, valor);
                 break;
+            }
             case 6:
+                printf("\nValor total do estoque: R$ %.2f\n", calcularValorTotal(raiz));
+                break;
+            case 7:
                 printf("\nArvore de produtos:\n");
                 imprimirArvore(raiz, 0);
                 break;
