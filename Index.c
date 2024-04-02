@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* 1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
-* quantidade em estoque, preço unitário.*/
+/*  1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
+    quantidade em estoque, preço unitário.
+*/
 typedef struct produto {
     int codigo;
     char nome[50];
@@ -19,17 +20,22 @@ typedef struct Node {
     short altura;
 } Node;
 
-/*************************** N E W *****************************************/
 /*
-    Retorna o maior dentre dois valores
-    a, b -> altura de dois nós da árvore
+    Retorna o maior entre dois valores.
+    a: primeiro valor a ser comparado
+    b: segundo valor a ser comparado
+    Retorna o maior valor entre a e b.
 */
 short maior(short a, short b){
-    return (a > b)? a: b;
+    return (a > b) ? a : b;
 }
 
 
-//  Retorna a altura de um nó ou -1 caso ele seja null
+/*
+    Retorna a altura de um nó na árvore.
+    no: nó cuja altura será verificada
+    Retorna a altura do nó. Se o nó for nulo, retorna -1.
+*/
 short alturaDoNo(Node *no){
     if(no == NULL)
         return -1;
@@ -37,7 +43,12 @@ short alturaDoNo(Node *no){
         return no->altura;
 }
 
-//   Calcula e retorna o fator de balanceamento de um nó
+
+/*
+    Calcula e retorna o fator de balanceamento de um nó na árvore.
+    no: nó cujo fator de balanceamento será calculado
+    Retorna o fator de balanceamento do nó. Se o nó for nulo, retorna 0.
+*/
 short fatorDeBalanceamento(Node *no){
     if(no)
         return (alturaDoNo(no->esquerda) - alturaDoNo(no->direita));
@@ -45,45 +56,74 @@ short fatorDeBalanceamento(Node *no){
         return 0;
 }
 
-// função para a rotação à esquerda
+/*
+    Realiza uma rotação para a esquerda em torno de um nó na árvore AVL.
+    r: nó em torno do qual a rotação é realizada
+    Retorna o novo nó que se torna a raiz após a rotação.
+*/
 Node* rotacaoEsquerda(Node *r){
     Node *y, *f;
 
-    y = r->direita;
-    f = y->esquerda;
+    y = r->direita; // Define y como o filho à direita de r
+    f = y->esquerda; // Define f como o filho à esquerda de y
 
+    // Realiza a rotação
     y->esquerda = r;
     r->direita = f;
 
+    // Atualiza as alturas dos nós afetados
     r->altura = maior(alturaDoNo(r->esquerda), alturaDoNo(r->direita)) + 1;
     y->altura = maior(alturaDoNo(y->esquerda), alturaDoNo(y->direita)) + 1;
 
-    return y;
+    return y; // Retorna o novo nó que se torna a raiz após a rotação
 }
 
-// função para a rotação à direita
+
+/*
+    Realiza uma rotação para a direita em torno de um nó na árvore AVL.
+    r: nó em torno do qual a rotação é realizada
+    Retorna o novo nó que se torna a raiz após a rotação.
+*/
 Node* rotacaoDireita(Node *r){
     Node *y, *f;
 
-    y = r->esquerda;
-    f = y->direita;
+    y = r->esquerda; // Define y como o filho à esquerda de r
+    f = y->direita; // Define f como o filho à direita de y
 
+    // Realiza a rotação
     y->direita = r;
     r->esquerda = f;
 
+    // Atualiza as alturas dos nós afetados
     r->altura = maior(alturaDoNo(r->esquerda), alturaDoNo(r->direita)) + 1;
     y->altura = maior(alturaDoNo(y->esquerda), alturaDoNo(y->direita)) + 1;
 
-    return y;
+    return y; // Retorna o novo nó que se torna a raiz após a rotação
 }
 
+/*
+    Realiza uma rotação à esquerda seguida por uma rotação à direita em torno de um nó na árvore AVL.
+    r: nó em torno do qual as rotações são realizadas
+    Retorna o novo nó que se torna a raiz após as rotações.
+*/
 Node* rotacaoEsquerdaDireita(Node *r){
+    // Realiza uma rotação à esquerda no filho à esquerda de r
     r->esquerda = rotacaoEsquerda(r->esquerda);
+
+    // Realiza uma rotação à direita em r
     return rotacaoDireita(r);
 }
 
+/*
+    Realiza uma rotação à direita seguida por uma rotação à esquerda em torno de um nó na árvore AVL.
+    r: nó em torno do qual as rotações são realizadas
+    Retorna o novo nó que se torna a raiz após as rotações.
+*/
 Node* rotacaoDireitaEsquerda(Node *r){
+    // Realiza uma rotação à direita no filho à direita de r
     r->direita = rotacaoDireita(r->direita);
+
+    // Realiza uma rotação à esquerda em r
     return rotacaoEsquerda(r);
 }
 
@@ -113,23 +153,33 @@ Node* balancear(Node *raiz){
     return raiz;
 }
 
-// Função para criar nó
+/*
+    Cria um novo nó para a árvore AVL com os dados do produto.
+    codigo: código do produto
+    nome: nome do produto
+    quantidade: quantidade em estoque do produto
+    preco: preço unitário do produto
+    Retorna um ponteiro para o novo nó criado.
+*/
 Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
+    // Verifica se os valores passados são válidos
     if (codigo < 0 || quantidade < 0 || preco < 0) {
-        printf("Nao e possivel criar o no com valores negativos.\n");
+        printf("Não é possível criar o nó com valores negativos.\n");
         exit(EXIT_FAILURE);
     }
 
-    Node* novoNo = malloc(sizeof(Node)); // Alocamos memória para o novo nó
+    // Aloca memória para o novo nó
+    Node* novoNo = malloc(sizeof(Node));
     if (novoNo == NULL) {
-        printf("Erro na alocacao de memoria.\n");
+        printf("Erro na alocação de memória para o nó.\n");
         exit(EXIT_FAILURE);
     }
 
-    novoNo->produto = malloc(sizeof(Produto)); // Alocamos memória para o produto dentro do nó
+    // Aloca memória para o produto dentro do nó
+    novoNo->produto = malloc(sizeof(Produto));
     if (novoNo->produto == NULL) {
-        printf("Erro na alocacao de memoria para o produto.\n");
-        free(novoNo); // Liberamos a memória alocada para o nó
+        printf("Erro na alocação de memória para o produto.\n");
+        free(novoNo); // Libera a memória alocada para o nó
         exit(EXIT_FAILURE);
     }
 
@@ -137,42 +187,54 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
     strcpy(novoNo->produto->nome, nome);
     novoNo->produto->quantidade = quantidade;
     novoNo->produto->preco = preco;
-    novoNo->esquerda = NULL;
+    novoNo->esquerda = NULL;// Inicializa os ponteiros para os filhos como nulos
     novoNo->direita = NULL;
-    novoNo->altura = 0;
-    return novoNo;
+    novoNo->altura = 0; // Inicializa a altura do nó como 0
+
+    return novoNo; // Retorna o novo nó criado
 }
 
-/* Função para inserir elementos na árvore
- *
- * 2 - Implemente uma função para inserir um novo produto na árvore, mantendo-a balanceada. Garanta que a árvore
- * não esteja desbalanceada em mais de 1 nível.
- *
- * 8 - Garanta que não é possível inserir produtos com códigos duplicados na árvore, nem quantidades ou
- * preços menores que zero.*/
-/* Função para inserir elementos na árvore */
-/* Função para inserir elementos na árvore */
+
+/*
+    2 - Implemente uma função para inserir um novo produto na árvore, mantendo-a balanceada. Garanta que a árvore
+    não esteja desbalanceada em mais de 1 nível.
+
+    8 - Garanta que não é possível inserir produtos com códigos duplicados na árvore, nem quantidades ou
+    preços menores que zero.
+
+    Insere um novo produto na árvore AVL, mantendo-a balanceada.
+    raiz: ponteiro para a raiz da árvore
+    codigo: código do produto a ser inserido
+    nome: nome do produto a ser inserido
+    quantidade: quantidade em estoque do produto a ser inserido
+    preco: preço unitário do produto a ser inserido
+    Retorna um ponteiro para a nova raiz da árvore após a inserção e o balanceamento.
+*/
 Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float preco) {
     // Verifica se algum dos valores inseridos é negativo
     if (codigo < 0 || quantidade < 0 || preco < 0) {
-        printf("Nao e possivel inserir um produto com valores negativos.\n");
+        printf("Não é possível inserir um produto com valores negativos.\n");
         return raiz; // Retorna a raiz original sem inserir o produto
     }
 
-    if (raiz == NULL) { // Se a árvore estiver vazia, insere o produto como raiz
+    // Se a árvore estiver vazia, insere o produto como raiz
+    if (raiz == NULL) {
         raiz = criarNo(codigo, nome, quantidade, preco);
         printf("Produto inserido com sucesso!\n");
         return raiz;
     }
 
-    // Se a árvore não estiver vazia, insere o produto em uma posição apropriada
+    // Se o código já existir na árvore, exibe uma mensagem de aviso
+    if (codigo == raiz->produto->codigo) {
+        printf("Produto com código %d já existe na árvore.\n", codigo);
+        return raiz; // Retorna a raiz original sem alterações
+    }
+
+    // Insere o produto em uma posição apropriada na árvore
     if (codigo < raiz->produto->codigo) {
         raiz->esquerda = inserir(raiz->esquerda, codigo, nome, quantidade, preco);
-    } else if (codigo > raiz->produto->codigo) {
+    } else {
         raiz->direita = inserir(raiz->direita, codigo, nome, quantidade, preco);
-    } else { // Se o código já existir na árvore, exibe uma mensagem de aviso
-        printf("Produto com codigo %d ja existe na arvore.\n", codigo);
-        return raiz; // Retorna a raiz original sem alterações
     }
 
     // Recalcula a altura de todos os nós entre a raiz e o novo nó inserido
@@ -184,141 +246,194 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
     return raiz; // Retorna a nova raiz após o balanceamento
 }
 
-/* Função para remover um elemento da árvore
- *
- * 3 - Implemente uma função para remover um produto da árvore, atualizando a estrutura para manter
- * a propriedade da árvore binária.*/
+/*
+    3 - Implemente uma função para remover um produto da árvore, atualizando a estrutura para manter
+    a propriedade da árvore binária.
+
+    Remove um produto da árvore AVL, mantendo-a balanceada.
+    raiz: ponteiro para a raiz da árvore
+    chave: código do produto a ser removido
+    Retorna um ponteiro para a nova raiz da árvore após a remoção e o balanceamento.
+*/
 Node* remover(Node* raiz, int chave) {
     // Verifica se a árvore está vazia
     if (raiz == NULL) {
-        printf("Valor nao encontrado!\n");
+        printf("Valor não encontrado!\n");
         return NULL;
     }
 
-    // Procura o nó a ser removido
+    // Procura o nó a ser removido nas subárvores esquerda e direita
     if (chave < raiz->produto->codigo) {
         raiz->esquerda = remover(raiz->esquerda, chave);
     } else if (chave > raiz->produto->codigo) {
         raiz->direita = remover(raiz->direita, chave);
-    } else { // Nó a ser removido encontrado
-        // Caso 1: Nó sem filhos ou com apenas um filho
-        if (raiz->esquerda == NULL) {
-            Node* temp = raiz->direita;
+    } else {
+        // Nó encontrado para remoção
+
+        // Verifica se o nó tem zero ou um filho
+        if (raiz->esquerda == NULL || raiz->direita == NULL) {
+            // Armazena o ponteiro para o filho não nulo
+            Node* temp = raiz->esquerda ? raiz->esquerda : raiz->direita;
+            // Libera a memória do nó atual
             free(raiz->produto);
             free(raiz);
-            return temp;
-        } else if (raiz->direita == NULL) {
-            Node* temp = raiz->esquerda;
-            free(raiz->produto);
-            free(raiz);
+            // Retorna o ponteiro para o filho não nulo (ou NULL se ambos forem nulos)
             return temp;
         }
 
-        // Caso 2: Nó com dois filhos
-        // Encontra o sucessor (menor valor na subárvore direita)
+        // Nó com dois filhos
         Node* temp = raiz->direita;
+        // Encontra o nó mais à esquerda da subárvore direita
         while (temp->esquerda != NULL) {
             temp = temp->esquerda;
         }
-        // Copia os dados do sucessor para este nó
+        // Copia os valores do nó mais à esquerda para o nó a ser removido
         raiz->produto->codigo = temp->produto->codigo;
         strcpy(raiz->produto->nome, temp->produto->nome);
         raiz->produto->quantidade = temp->produto->quantidade;
         raiz->produto->preco = temp->produto->preco;
-        // Remove o sucessor
+        // Remove o nó mais à esquerda da subárvore direita
         raiz->direita = remover(raiz->direita, temp->produto->codigo);
     }
 
     // Recalcula a altura de todos os nós entre a raiz e o nó removido
-    raiz->altura = 1 + maior(alturaDoNo(raiz->esquerda), alturaDoNo(raiz->direita));
+    raiz->altura = maior(alturaDoNo(raiz->esquerda), alturaDoNo(raiz->direita)) + 1;
 
     // Verifica a necessidade de rebalancear a árvore
     raiz = balancear(raiz);
 
-    return raiz;
+    return raiz; // Retorna a nova raiz após o balanceamento
 }
 
-/* Função para buscar um produto pelo código
- *
- * 4 Implemente uma função para buscar um produto na árvore pelo seu código.*/
+/*
+    4 - Implemente uma função para buscar um produto na árvore pelo seu código.
+
+    Busca um produto na árvore AVL com base no código.
+    raiz: ponteiro para a raiz da árvore
+    codigo: código do produto a ser buscado
+    Retorna um ponteiro para o nó que contém o produto com o código buscado, ou NULL se não encontrado.
+*/
 Node* buscar(Node* raiz, int codigo) {
+    // Verifica se a raiz é nula ou se o código da raiz é igual ao código buscado
     if (raiz == NULL || raiz->produto->codigo == codigo) {
-        return raiz;
+        return raiz; // Retorna a raiz se for nula ou se encontrar o código na raiz
     }
 
+    // Se o código buscado for menor que o código da raiz, busca na subárvore esquerda
     if (codigo < raiz->produto->codigo) {
         return buscar(raiz->esquerda, codigo);
-    } else {
+    } else { // Caso contrário, busca na subárvore direita
         return buscar(raiz->direita, codigo);
     }
 }
 
-/* Função para listar produtos com quantidade menor que um valor especificado
- *
- * 5 - Implemente uma função para listar todos os produtos com uma quantidade menor que a informada pelo usuário.*/
+/*
+    5 - Implemente uma função para listar todos os produtos com uma quantidade menor que a informada pelo usuário.
+
+    Lista os produtos com quantidade menor que um valor especificado.
+    raiz: ponteiro para a raiz da árvore
+    valor: valor máximo de quantidade para listar os produtos
+*/
 void listarQuantidadeMenor(Node* raiz, int valor) {
+    // Verifica se a raiz é nula
     if (raiz == NULL) {
-        return;
+        return; // Se sim, retorna, pois não há nada para listar nesta subárvore
     }
 
+    // Realiza uma travessia em ordem na subárvore esquerda
     listarQuantidadeMenor(raiz->esquerda, valor);
+
+    // Verifica se a quantidade do produto na raiz é menor que o valor especificado
     if (raiz->produto->quantidade < valor) {
+        // Se sim, exibe as informações do produto
         printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
     }
+
+    // Realiza uma travessia em ordem na subárvore direita
     listarQuantidadeMenor(raiz->direita, valor);
 }
 
-/* Função para listar produtos com preço dentro de uma faixa especificada
- *
- * 6 - Implemente uma função para listar todos os produtos em uma faixa de preço especificada pelo usuário.*/
+/*
+    6 - Implemente uma função para listar todos os produtos em uma faixa de preço especificada pelo usuário.
+
+    Lista os produtos com preço dentro de uma faixa específica.
+    raiz: ponteiro para a raiz da árvore
+    minPreco: preço mínimo da faixa de preços
+    maxPreco: preço máximo da faixa de preços
+*/
 void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
+    // Verifica se a raiz é nula
     if (raiz == NULL) {
-        return;
+        return; // Se sim, retorna, pois não há nada para listar nesta subárvore
     }
 
+    // Realiza uma travessia em ordem na subárvore esquerda
     listarFaixaPreco(raiz->esquerda, minPreco, maxPreco);
+
+    // Verifica se o preço do produto na raiz está dentro da faixa especificada
     if (raiz->produto->preco >= minPreco && raiz->produto->preco <= maxPreco) {
+        // Se sim, exibe as informações do produto
         printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
     }
+
+    // Realiza uma travessia em ordem na subárvore direita
     listarFaixaPreco(raiz->direita, minPreco, maxPreco);
 }
 
-/* Função para calcular o valor total do estoque
- *
- * 7 - Implemente uma função para calcular o valor total do estoque da loja.*/
+/*
+    7 - Implemente uma função para calcular o valor total do estoque da loja.
+    Calcula e retorna o valor total do estoque representado pela árvore.
+    raiz: ponteiro para a raiz da árvore
+    Retorna o valor total do estoque.
+*/
 float calcularValorTotal(Node* raiz) {
+    // Verifica se a raiz é nula
     if (raiz == NULL) {
-        return 0;
+        return 0; // Se sim, o valor total é zero
     }
 
+    // Calcula o valor total do estoque da subárvore esquerda, da raiz e da subárvore direita
     return raiz->produto->preco * raiz->produto->quantidade + calcularValorTotal(raiz->esquerda) + calcularValorTotal(raiz->direita);
 }
 
-/* Função para imprimir a árvore
- *
- * 10 - O código deve implementar uma maneira de exibir a árvore de maneira intuitiva no console.*/
+/*
+    10 - O código deve implementar uma maneira de exibir a árvore de maneira intuitiva no console.
+    Imprime a árvore na forma de uma representação gráfica.
+    raiz: ponteiro para a raiz da árvore
+    espacos: quantidade de espaços de indentação para a formatação
+*/
 void imprimirArvore(Node* raiz, int espacos) {
+    // Verifica se a raiz é nula
     if (raiz == NULL) {
-        return;
+        return; // Se sim, retorna
     }
 
+    // Adiciona espaços para indentação
     espacos += 10;
 
+    // Imprime a subárvore direita
     imprimirArvore(raiz->direita, espacos);
 
+    // Imprime uma quebra de linha
     printf("\n");
+
+    // Imprime os espaços de indentação
     for (int i = 10; i < espacos; i++) {
         printf(" ");
     }
-    printf("%d - %s\n", raiz->produto->codigo,raiz->produto->nome);
 
+    // Imprime o código e o nome do produto
+    printf("%d - %s\n", raiz->produto->codigo, raiz->produto->nome);
+
+    // Imprime a subárvore esquerda
     imprimirArvore(raiz->esquerda, espacos);
 }
 
 int main() {
-    Node* raiz = NULL;
-    int opcao;
+    Node* raiz = NULL; // Inicializa a raiz da árvore como nula
+    int opcao; // Variável para armazenar a opção do menu
 
+    // Loop do menu principal
     do {
         printf("\n=== Menu ===\n");
         printf("0. Sair\n");
@@ -337,6 +452,7 @@ int main() {
                 printf("Saindo...\n");
                 break;
             case 1: {
+                // Inserir produto
                 int codigo, quantidade;
                 float preco;
                 char nome[50];
@@ -348,21 +464,23 @@ int main() {
                 scanf("%d", &quantidade);
                 printf("Digite o preco do produto:");
                 scanf("%f", &preco);
-                raiz = inserir(raiz, codigo, nome, quantidade, preco);
+                raiz = inserir(raiz, codigo, nome, quantidade, preco); // Chama a função para inserir o produto na árvore
                 break;
             }
             case 2: {
+                // Remover produto
                 int codigoRemover;
                 printf("\nDigite o codigo do produto a ser removido:");
                 scanf("%d", &codigoRemover);
-                raiz = remover(raiz, codigoRemover);
+                raiz = remover(raiz, codigoRemover); // Chama a função para remover o produto da árvore
                 break;
             }
             case 3: {
+                // Buscar produto
                 int codigoBuscar;
                 printf("\nDigite o codigo do produto a ser buscado:");
                 scanf("%d", &codigoBuscar);
-                Node* produtoBuscado = buscar(raiz, codigoBuscar);
+                Node* produtoBuscado = buscar(raiz, codigoBuscar); // Chama a função para buscar o produto na árvore
                 if (produtoBuscado != NULL) {
                     printf("Produto encontrado:\n");
                     printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->produto->codigo, produtoBuscado->produto->nome, produtoBuscado->produto->quantidade, produtoBuscado->produto->preco);
@@ -372,34 +490,38 @@ int main() {
                 break;
             }
             case 4: {
+                // Listar produtos com preço dentro de uma faixa
                 float minPreco, maxPreco;
                 printf("\nDigite o preco minimo:");
                 scanf("%f", &minPreco);
                 printf("Digite o preco maximo:");
                 scanf("%f", &maxPreco);
                 printf("Produtos com preco entre R$ %.2f e R$ %.2f:\n", minPreco, maxPreco);
-                listarFaixaPreco(raiz, minPreco, maxPreco);
+                listarFaixaPreco(raiz, minPreco, maxPreco); // Chama a função para listar produtos dentro da faixa de preço especificada
                 break;
             }
             case 5: {
+                // Listar produtos com quantidade menor que um valor especificado
                 int valor;
                 printf("\nDigite a quantidade maxima:");
                 scanf("%d", &valor);
                 printf("Produtos com quantidade menor que %d:\n", valor);
-                listarQuantidadeMenor(raiz, valor);
+                listarQuantidadeMenor(raiz, valor); // Chama a função para listar produtos com quantidade menor que um valor especificado
                 break;
             }
             case 6:
-                printf("\nValor total do estoque: R$ %.2f\n", calcularValorTotal(raiz));
+                // Calcular valor total do estoque
+                printf("\nValor total do estoque: R$ %.2f\n", calcularValorTotal(raiz)); // Chama a função para calcular o valor total do estoque
                 break;
             case 7:
+                // Imprimir árvore de produtos
                 printf("\nArvore de produtos:\n");
-                imprimirArvore(raiz, 0);
+                imprimirArvore(raiz, 0); // Chama a função para imprimir a árvore de produtos
                 break;
             default:
-                printf("Opcao invalida!\n");
+                printf("Opcao invalida!\n"); // Mensagem de opção inválida
         }
-    } while (opcao != 0);
+    } while (opcao != 0); // Repete até que a opção 0 (Sair) seja escolhida
 
     return 0;
 }
