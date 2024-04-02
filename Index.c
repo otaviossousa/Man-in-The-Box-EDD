@@ -444,11 +444,14 @@ void liberarArvore(Node* raiz) {
 }
 
 // Função para gerar um número aleatório entre min e max
-int rand_int(int min, int max) {
+int randint(int min, int max) {
     return min + rand() % (max - min + 1);
 }
 
-// Função para criar uma árvore AVL balanceada com 7 elementos
+/*
+   9 - O código deve implementar uma opção de geração automática e aleatória de uma árvore balanceada com 07 elementos.
+   Função para criar uma árvore AVL balanceada com 7 elementos
+*/
 Node* gerarArvoreAleatoria() {
     Node* raiz = NULL;
     int i, codigo, quantidade;
@@ -460,10 +463,10 @@ Node* gerarArvoreAleatoria() {
 
     // Insere 7 elementos aleatórios na árvore
     for (i = 0; i < 7; i++) {
-        codigo = rand_int(1000, 9999); // Gera um código aleatório de 4 dígitos
+        codigo = randint(1000, 9999); // Gera um código aleatório de 4 dígitos
         sprintf(nome, "Produto%d", codigo); // Gera um nome aleatório baseado no código
-        quantidade = rand_int(1, 100); // Gera uma quantidade aleatória entre 1 e 100
-        preco = rand_int(1, 1000) / 10.0f; // Gera um preço aleatório entre 0.1 e 100.0
+        quantidade = randint(1, 100); // Gera uma quantidade aleatória entre 1 e 100
+        preco = randint(1, 1000) / 10.0f; // Gera um preço aleatório entre 0.1 e 100.0
         raiz = inserir(raiz, codigo, nome, quantidade, preco); // Insere o produto na árvore
     }
 
