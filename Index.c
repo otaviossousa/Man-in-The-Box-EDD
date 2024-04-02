@@ -3,6 +3,7 @@
 #include <string.h>
 
 /* Definição da estrutura do nó da árvore
+ *
  * 1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
  * quantidade em estoque, preço unitário.*/
 typedef struct Node {
@@ -70,6 +71,7 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
 }
 
 /* Função para remover um elemento da árvore
+ *
  * 3 - Implemente uma função para remover um produto da árvore, atualizando a estrutura para manter
  * a propriedade da árvore binária.*/
 Node* remover(Node* raiz, int chave) {
@@ -119,6 +121,7 @@ Node* remover(Node* raiz, int chave) {
 }
 
 /* Função para buscar um produto pelo código
+ *
  * 4 Implemente uma função para buscar um produto na árvore pelo seu código.*/
 Node* buscar(Node* raiz, int codigo) {
     if (raiz == NULL || raiz->codigo == codigo) {
@@ -133,6 +136,7 @@ Node* buscar(Node* raiz, int codigo) {
 }
 
 /* Função para listar produtos com quantidade menor que um valor especificado
+ *
  * 5 - Implemente uma função para listar todos os produtos com uma quantidade menor que a informada pelo usuário.*/
 void listarQuantidadeMenor(Node* raiz, int valor) {
     if (raiz == NULL) {
@@ -146,8 +150,8 @@ void listarQuantidadeMenor(Node* raiz, int valor) {
     listarQuantidadeMenor(raiz->direita, valor);
 }
 
-
 /* Função para listar produtos com preço dentro de uma faixa especificada
+ *
  * 6 - Implemente uma função para listar todos os produtos em uma faixa de preço especificada pelo usuário.*/
 void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
     if (raiz == NULL) {
@@ -162,6 +166,7 @@ void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
 }
 
 /* Função para calcular o valor total do estoque
+ *
  * 7 - Implemente uma função para calcular o valor total do estoque da loja.*/
 float calcularValorTotal(Node* raiz) {
     if (raiz == NULL) {
@@ -172,6 +177,7 @@ float calcularValorTotal(Node* raiz) {
 }
 
 /* Função para imprimir a árvore
+ *
  * 10 - O código deve implementar uma maneira de exibir a árvore de maneira intuitiva no console.*/
 void imprimirArvore(Node* raiz, int espacos) {
     if (raiz == NULL) {
