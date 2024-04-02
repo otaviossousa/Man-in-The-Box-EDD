@@ -1,9 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <stdio.h>   // Biblioteca padrão de entrada e saída. Contém funções como printf e scanf para entrada e saída de dados.
+#include <stdlib.h>  // Biblioteca padrão que fornece funções para alocação de memória dinâmica, controle de processos, conversão de tipos e outras utilidades.
+#include <string.h>  // Biblioteca padrão para manipulação de strings. Contém funções como strcpy para copiar strings.
+#include <time.h>    // Biblioteca padrão para manipulação de tempo e data. Contém funções e tipos para trabalhar com tempo, como a função time para obter o tempo atual do sistema.
 
-/*  1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
+/*
+    1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
     quantidade em estoque, preço unitário.
 */
 typedef struct produto {
@@ -21,6 +22,161 @@ typedef struct Node {
     short altura;
 } Node;
 
+//================================================== FUNCOES ================================================== //
+// Retorna o maior entre dois valores
+short maior(short a, short b);
+
+// Retorna a altura de um nó na árvore
+short alturaDoNo(Node *no);
+
+// Calcula e retorna o fator de balanceamento de um nó na árvore
+short fatorDeBalanceamento(Node *no);
+
+// Realiza uma rotação para a esquerda em torno de um nó na árvore AVL
+Node* rotacaoEsquerda(Node *r);
+
+// Realiza uma rotação para a direita em torno de um nó na árvore AVL
+Node* rotacaoDireita(Node *r);
+
+// Realiza uma rotação à esquerda seguida por uma rotação à direita em torno de um nó na árvore AVL
+Node* rotacaoEsquerdaDireita(Node *r);
+
+// Realiza uma rotação à direita seguida por uma rotação à esquerda em torno de um nó na árvore AVL
+Node* rotacaoDireitaEsquerda(Node *r);
+
+// Realiza o balanceamento da árvore após uma inserção ou remoção
+Node* balancear(Node *raiz);
+
+// Cria um novo nó para a árvore AVL com os dados do produto
+Node* criarNo(int codigo, const char *nome, int quantidade, float preco);
+
+// Insere um novo produto na árvore AVL, mantendo-a balanceada
+Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float preco);
+
+// Remove um produto da árvore AVL, mantendo-a balanceada
+Node* remover(Node* raiz, int chave);
+
+// Busca um produto na árvore AVL pelo seu código
+Node* buscar(Node* raiz, int codigo);
+
+// Lista os produtos com quantidade menor que um valor especificado
+void listarQuantidadeMenor(Node* raiz, int valor);
+
+// Lista os produtos com preço dentro de uma faixa especificada pelo usuário
+void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco);
+
+// Calcula o valor total do estoque da loja representado pela árvore
+float calcularValorTotal(Node* raiz);
+
+// Imprime a árvore na forma de uma representação gráfica
+void imprimirArvore(Node* raiz, int espacos);
+
+// Libera a memória de todos os nós da árvore
+void liberarArvore(Node* raiz);
+
+// Gera um número aleatório entre min e max
+int randint(int min, int max);
+
+// Cria uma árvore AVL balanceada com 7 elementos de forma automática e aleatória
+Node* gerarArvoreAleatoria();
+//================================================== FUNCOES ================================================== //
+
+int main() {
+    Node* raiz = NULL; // Inicializa a raiz da árvore como nula
+    int opcao; // Variável para armazenar a opção do menu
+
+    // Loop do menu principal
+    do {
+        printf("\n============================== Menu =============================\n0. Sair\n1. Inserir produto\n2. Remover produto"
+               "\n3. Buscar produto\n4. Listar produtos com preco dentro de uma faixa\n5. Listar produtos com quantidade menor que um valor especificado\n"
+               "6. Calcular valor total do estoque\n7. Imprimir arvore de produtos\n8. Gerar Arvore Aleatoria\nEscolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 0:
+                printf("Saindo...\n");
+                break;
+            case 1: {
+                // Inserir produto
+                int codigo, quantidade;
+                float preco;
+                char nome[50];
+                printf("\nDigite o codigo do produto:");
+                scanf("%d", &codigo);
+                printf("Digite o nome do produto:");
+                scanf("%s", nome);
+                printf("Digite a quantidade do produto:");
+                scanf("%d", &quantidade);
+                printf("Digite o preco do produto:");
+                scanf("%f", &preco);
+                raiz = inserir(raiz, codigo, nome, quantidade, preco); // Chama a função para inserir o produto na árvore
+                break;
+            }
+            case 2: {
+                // Remover produto
+                int codigoRemover;
+                printf("\nDigite o codigo do produto a ser removido:");
+                scanf("%d", &codigoRemover);
+                raiz = remover(raiz, codigoRemover); // Chama a função para remover o produto da árvore
+                break;
+            }
+            case 3: {
+                // Buscar produto
+                int codigoBuscar;
+                printf("\nDigite o codigo do produto a ser buscado:");
+                scanf("%d", &codigoBuscar);
+                Node* produtoBuscado = buscar(raiz, codigoBuscar); // Chama a função para buscar o produto na árvore
+                if (produtoBuscado != NULL) {
+                    printf("Produto encontrado:\n");
+                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->produto->codigo, produtoBuscado->produto->nome, produtoBuscado->produto->quantidade, produtoBuscado->produto->preco);
+                } else {
+                    printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
+                }
+                break;
+            }
+            case 4: {
+                // Listar produtos com preço dentro de uma faixa
+                float minPreco, maxPreco;
+                printf("\nDigite o preco minimo:");
+                scanf("%f", &minPreco);
+                printf("Digite o preco maximo:");
+                scanf("%f", &maxPreco);
+                printf("Produtos com preco entre R$ %.2f e R$ %.2f:\n", minPreco, maxPreco);
+                listarFaixaPreco(raiz, minPreco, maxPreco); // Chama a função para listar produtos dentro da faixa de preço especificada
+                break;
+            }
+            case 5: {
+                // Listar produtos com quantidade menor que um valor especificado
+                int valor;
+                printf("\nDigite a quantidade maxima:");
+                scanf("%d", &valor);
+                printf("Produtos com quantidade menor que %d:\n", valor);
+                listarQuantidadeMenor(raiz, valor); // Chama a função para listar produtos com quantidade menor que um valor especificado
+                break;
+            }
+            case 6:
+                // Calcular valor total do estoque
+                printf("\nValor total do estoque: R$ %.2f\n", calcularValorTotal(raiz)); // Chama a função para calcular o valor total do estoque
+                break;
+            case 7:
+                // Imprimir árvore de produtos
+                printf("\nArvore de produtos:\n");
+                imprimirArvore(raiz, 0); // Chama a função para imprimir a árvore de produtos
+                break;
+            case 8:
+                liberarArvore(raiz); // Liberar a memória da árvore existente
+                raiz = gerarArvoreAleatoria(); // Gerar automaticamente uma nova árvore balanceada com 7 elementos
+                printf("\nNova arvore balanceada com 7 elementos gerada com sucesso!\n");
+                break;
+            default:
+                printf("\nOpcao invalida!\n"); // Mensagem de opção inválida
+        }
+    } while (opcao != 0); // Repete até que a opção 0 (Sair) seja escolhida
+
+    liberarArvore(raiz); // Liberar a memória alocada para a árvore antes de encerrar o programa
+    return 0;
+}
+
 /*
     Retorna o maior entre dois valores.
     a: primeiro valor a ser comparado
@@ -30,7 +186,6 @@ typedef struct Node {
 short maior(short a, short b){
     return (a > b) ? a : b;
 }
-
 
 /*
     Retorna a altura de um nó na árvore.
@@ -43,7 +198,6 @@ short alturaDoNo(Node *no){
     else
         return no->altura;
 }
-
 
 /*
     Calcula e retorna o fator de balanceamento de um nó na árvore.
@@ -78,7 +232,6 @@ Node* rotacaoEsquerda(Node *r){
 
     return y; // Retorna o novo nó que se torna a raiz após a rotação
 }
-
 
 /*
     Realiza uma rotação para a direita em torno de um nó na árvore AVL.
@@ -194,7 +347,6 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
 
     return novoNo; // Retorna o novo nó criado
 }
-
 
 /*
     2 - Implemente uma função para inserir um novo produto na árvore, mantendo-a balanceada. Garanta que a árvore
@@ -469,103 +621,5 @@ Node* gerarArvoreAleatoria() {
         preco = randint(1, 1000) / 10.0f; // Gera um preço aleatório entre 0.1 e 100.0
         raiz = inserir(raiz, codigo, nome, quantidade, preco); // Insere o produto na árvore
     }
-
     return raiz;
-}
-
-int main() {
-    Node* raiz = NULL; // Inicializa a raiz da árvore como nula
-    int opcao; // Variável para armazenar a opção do menu
-
-    // Loop do menu principal
-    do {
-        printf("\n============================== Menu =============================\n0. Sair\n1. Inserir produto\n2. Remover produto"
-               "\n3. Buscar produto\n4. Listar produtos com preco dentro de uma faixa\n5. Listar produtos com quantidade menor que um valor especificado\n"
-               "6. Calcular valor total do estoque\n7. Imprimir arvore de produtos\n8. Gerar Arvore Aleatoria\nEscolha uma opcao: ");
-        scanf("%d", &opcao);
-
-        switch (opcao) {
-            case 0:
-                printf("Saindo...\n");
-                break;
-            case 1: {
-                // Inserir produto
-                int codigo, quantidade;
-                float preco;
-                char nome[50];
-                printf("\nDigite o codigo do produto:");
-                scanf("%d", &codigo);
-                printf("Digite o nome do produto:");
-                scanf("%s", nome);
-                printf("Digite a quantidade do produto:");
-                scanf("%d", &quantidade);
-                printf("Digite o preco do produto:");
-                scanf("%f", &preco);
-                raiz = inserir(raiz, codigo, nome, quantidade, preco); // Chama a função para inserir o produto na árvore
-                break;
-            }
-            case 2: {
-                // Remover produto
-                int codigoRemover;
-                printf("\nDigite o codigo do produto a ser removido:");
-                scanf("%d", &codigoRemover);
-                raiz = remover(raiz, codigoRemover); // Chama a função para remover o produto da árvore
-                break;
-            }
-            case 3: {
-                // Buscar produto
-                int codigoBuscar;
-                printf("\nDigite o codigo do produto a ser buscado:");
-                scanf("%d", &codigoBuscar);
-                Node* produtoBuscado = buscar(raiz, codigoBuscar); // Chama a função para buscar o produto na árvore
-                if (produtoBuscado != NULL) {
-                    printf("Produto encontrado:\n");
-                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->produto->codigo, produtoBuscado->produto->nome, produtoBuscado->produto->quantidade, produtoBuscado->produto->preco);
-                } else {
-                    printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
-                }
-                break;
-            }
-            case 4: {
-                // Listar produtos com preço dentro de uma faixa
-                float minPreco, maxPreco;
-                printf("\nDigite o preco minimo:");
-                scanf("%f", &minPreco);
-                printf("Digite o preco maximo:");
-                scanf("%f", &maxPreco);
-                printf("Produtos com preco entre R$ %.2f e R$ %.2f:\n", minPreco, maxPreco);
-                listarFaixaPreco(raiz, minPreco, maxPreco); // Chama a função para listar produtos dentro da faixa de preço especificada
-                break;
-            }
-            case 5: {
-                // Listar produtos com quantidade menor que um valor especificado
-                int valor;
-                printf("\nDigite a quantidade maxima:");
-                scanf("%d", &valor);
-                printf("Produtos com quantidade menor que %d:\n", valor);
-                listarQuantidadeMenor(raiz, valor); // Chama a função para listar produtos com quantidade menor que um valor especificado
-                break;
-            }
-            case 6:
-                // Calcular valor total do estoque
-                printf("\nValor total do estoque: R$ %.2f\n", calcularValorTotal(raiz)); // Chama a função para calcular o valor total do estoque
-                break;
-            case 7:
-                // Imprimir árvore de produtos
-                printf("\nArvore de produtos:\n");
-                imprimirArvore(raiz, 0); // Chama a função para imprimir a árvore de produtos
-                break;
-            case 8:
-                liberarArvore(raiz); // Liberar a memória da árvore existente
-                raiz = gerarArvoreAleatoria(); // Gerar automaticamente uma nova árvore balanceada com 7 elementos
-                printf("\nNova arvore balanceada com 7 elementos gerada com sucesso!\n");
-                break;
-            default:
-                printf("\nOpcao invalida!\n"); // Mensagem de opção inválida
-        }
-    } while (opcao != 0); // Repete até que a opção 0 (Sair) seja escolhida
-
-
-    liberarArvore(raiz); // Liberar a memória alocada para a árvore antes de encerrar o programa
-    return 0;
 }
