@@ -2,18 +2,116 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Definição da estrutura do nó da árvore
- *
- * 1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
- * quantidade em estoque, preço unitário.*/
-typedef struct Node {
+/* 1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
+* quantidade em estoque, preço unitário.*/
+typedef struct produto {
     int codigo;
     char nome[50];
     int quantidade;
     float preco;
+} Produto;
+
+// Definição da estrutura do nó da árvore
+typedef struct Node {
+    Produto* produto;
     struct Node* esquerda;
     struct Node* direita;
+    short altura;
 } Node;
+
+/*************************** N E W *****************************************/
+/*
+    Retorna o maior dentre dois valores
+    a, b -> altura de dois nós da árvore
+*/
+short maior(short a, short b){
+    return (a > b)? a: b;
+}
+
+
+//  Retorna a altura de um nó ou -1 caso ele seja null
+short alturaDoNo(Node *no){
+    if(no == NULL)
+        return -1;
+    else
+        return no->altura;
+}
+
+//   Calcula e retorna o fator de balanceamento de um nó
+short fatorDeBalanceamento(Node *no){
+    if(no)
+        return (alturaDoNo(no->esquerda) - alturaDoNo(no->direita));
+    else
+        return 0;
+}
+
+// função para a rotação à esquerda
+Node* rotacaoEsquerda(Node *r){
+    Node *y, *f;
+
+    y = r->direita;
+    f = y->esquerda;
+
+    y->esquerda = r;
+    r->direita = f;
+
+    r->altura = maior(alturaDoNo(r->esquerda), alturaDoNo(r->direita)) + 1;
+    y->altura = maior(alturaDoNo(y->esquerda), alturaDoNo(y->direita)) + 1;
+
+    return y;
+}
+
+// função para a rotação à direita
+Node* rotacaoDireita(Node *r){
+    Node *y, *f;
+
+    y = r->esquerda;
+    f = y->direita;
+
+    y->direita = r;
+    r->esquerda = f;
+
+    r->altura = maior(alturaDoNo(r->esquerda), alturaDoNo(r->direita)) + 1;
+    y->altura = maior(alturaDoNo(y->esquerda), alturaDoNo(y->direita)) + 1;
+
+    return y;
+}
+
+Node* rotacaoEsquerdaDireita(Node *r){
+    r->esquerda = rotacaoEsquerda(r->esquerda);
+    return rotacaoDireita(r);
+}
+
+Node* rotacaoDireitaEsquerda(Node *r){
+    r->direita = rotacaoDireita(r->direita);
+    return rotacaoEsquerda(r);
+}
+
+/*
+    Função para realizar o balanceamento da árvore após uma inserção ou remoção
+    Recebe o nó que está desbalanceado e retorna a nova raiz após o balanceamento
+*/
+Node* balancear(Node *raiz){
+    short fb = fatorDeBalanceamento(raiz);
+
+    // Rotação à esquerda
+    if(fb < -1 && fatorDeBalanceamento(raiz->direita) <= 0)
+        raiz = rotacaoEsquerda(raiz);
+
+        // Rotação à direita
+    else if(fb > 1 && fatorDeBalanceamento(raiz->esquerda) >= 0)
+        raiz = rotacaoDireita(raiz);
+
+        // Rotação dupla à esquerda
+    else if(fb > 1 && fatorDeBalanceamento(raiz->esquerda) < 0)
+        raiz = rotacaoEsquerdaDireita(raiz);
+
+        // Rotação dupla à direita
+    else if(fb < -1 && fatorDeBalanceamento(raiz->direita) > 0)
+        raiz = rotacaoDireitaEsquerda(raiz);
+
+    return raiz;
+}
 
 // Função para criar nó
 Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
@@ -22,16 +120,23 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
         exit(EXIT_FAILURE);
     }
 
-    Node* novoNo = (Node*)calloc(1, sizeof(Node)); // Inicializa a memória alocada com zero
+    Node* novoNo = malloc(sizeof(Node)); // Alocamos memória para o novo nó
     if (novoNo == NULL) {
         printf("Erro na alocacao de memoria.\n");
         exit(EXIT_FAILURE);
     }
 
-    novoNo->codigo = codigo;
-    strcpy(novoNo->nome, nome);
-    novoNo->quantidade = quantidade;
-    novoNo->preco = preco;
+    novoNo->produto = malloc(sizeof(Produto)); // Alocamos memória para o produto dentro do nó
+    if (novoNo->produto == NULL) {
+        printf("Erro na alocacao de memoria para o produto.\n");
+        free(novoNo); // Liberamos a memória alocada para o nó
+        exit(EXIT_FAILURE);
+    }
+
+    novoNo->produto->codigo = codigo;
+    strcpy(novoNo->produto->nome, nome);
+    novoNo->produto->quantidade = quantidade;
+    novoNo->produto->preco = preco;
     novoNo->esquerda = NULL;
     novoNo->direita = NULL;
     return novoNo;
@@ -56,14 +161,14 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
         return raiz;
     }
 
-    if (codigo == raiz->codigo) {
+    if (codigo == raiz->produto->codigo) {
         printf("Produto com codigo %d ja existe na arvore.\n", codigo);
         return raiz; // Retorna a raiz original sem inserir o produto duplicado
     }
 
-    if (codigo < raiz->codigo) {
+    if (codigo < raiz->produto->codigo) {
         raiz->esquerda = inserir(raiz->esquerda, codigo, nome, quantidade, preco);
-    } else if (codigo > raiz->codigo) {
+    } else if (codigo > raiz->produto->codigo) {
         raiz->direita = inserir(raiz->direita, codigo, nome, quantidade, preco);
     }
     // Balanceamento da árvore (a ser implementado)
@@ -79,10 +184,11 @@ Node* remover(Node* raiz, int chave) {
         printf("Valor nao encontrado!\n");
         return NULL;
     } else {
-        if (raiz->codigo == chave) {
+        if (raiz->produto->codigo == chave) {
             // Remove nós folhas
             if (raiz->esquerda == NULL && raiz->direita == NULL) {
-                printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+                printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
+                free(raiz->produto);
                 free(raiz);
                 return NULL;
             } else {
@@ -93,7 +199,8 @@ Node* remover(Node* raiz, int chave) {
                         aux = raiz->esquerda;
                     else
                         aux = raiz->direita;
-                    printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+                    printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
+                    free(raiz->produto);
                     free(raiz);
                     return aux;
                 } else {
@@ -101,16 +208,16 @@ Node* remover(Node* raiz, int chave) {
                     Node* aux = raiz->esquerda;
                     while (aux->direita != NULL)
                         aux = aux->direita;
-                    raiz->codigo = aux->codigo;
-                    strcpy(raiz->nome, aux->nome); // Atualiza o nome
-                    raiz->quantidade = aux->quantidade; // Atualiza a quantidade
-                    raiz->preco = aux->preco; // Atualiza o preço
-                    raiz->esquerda = remover(raiz->esquerda, aux->codigo); // Remove o nó sucessor
+                    raiz->produto->codigo = aux->produto->codigo;
+                    strcpy(raiz->produto->nome, aux->produto->nome); // Atualiza o nome
+                    raiz->produto->quantidade = aux->produto->quantidade; // Atualiza a quantidade
+                    raiz->produto->preco = aux->produto->preco; // Atualiza o preço
+                    raiz->esquerda = remover(raiz->esquerda, aux->produto->codigo); // Remove o nó sucessor
                     return raiz;
                 }
             }
         } else {
-            if (chave < raiz->codigo)
+            if (chave < raiz->produto->codigo)
                 raiz->esquerda = remover(raiz->esquerda, chave);
             else
                 raiz->direita = remover(raiz->direita, chave);
@@ -124,11 +231,11 @@ Node* remover(Node* raiz, int chave) {
  *
  * 4 Implemente uma função para buscar um produto na árvore pelo seu código.*/
 Node* buscar(Node* raiz, int codigo) {
-    if (raiz == NULL || raiz->codigo == codigo) {
+    if (raiz == NULL || raiz->produto->codigo == codigo) {
         return raiz;
     }
 
-    if (codigo < raiz->codigo) {
+    if (codigo < raiz->produto->codigo) {
         return buscar(raiz->esquerda, codigo);
     } else {
         return buscar(raiz->direita, codigo);
@@ -144,8 +251,8 @@ void listarQuantidadeMenor(Node* raiz, int valor) {
     }
 
     listarQuantidadeMenor(raiz->esquerda, valor);
-    if (raiz->quantidade < valor) {
-        printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+    if (raiz->produto->quantidade < valor) {
+        printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
     }
     listarQuantidadeMenor(raiz->direita, valor);
 }
@@ -159,8 +266,8 @@ void listarFaixaPreco(Node* raiz, float minPreco, float maxPreco) {
     }
 
     listarFaixaPreco(raiz->esquerda, minPreco, maxPreco);
-    if (raiz->preco >= minPreco && raiz->preco <= maxPreco) {
-        printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->codigo, raiz->nome, raiz->quantidade, raiz->preco);
+    if (raiz->produto->preco >= minPreco && raiz->produto->preco <= maxPreco) {
+        printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
     }
     listarFaixaPreco(raiz->direita, minPreco, maxPreco);
 }
@@ -173,7 +280,7 @@ float calcularValorTotal(Node* raiz) {
         return 0;
     }
 
-    return raiz->preco * raiz->quantidade + calcularValorTotal(raiz->esquerda) + calcularValorTotal(raiz->direita);
+    return raiz->produto->preco * raiz->produto->quantidade + calcularValorTotal(raiz->esquerda) + calcularValorTotal(raiz->direita);
 }
 
 /* Função para imprimir a árvore
@@ -192,7 +299,7 @@ void imprimirArvore(Node* raiz, int espacos) {
     for (int i = 10; i < espacos; i++) {
         printf(" ");
     }
-    printf("%d - %s\n", raiz->codigo, raiz->nome);
+    printf("%d - %s\n", raiz->produto->codigo,raiz->produto->nome);
 
     imprimirArvore(raiz->esquerda, espacos);
 }
@@ -247,7 +354,7 @@ int main() {
                 Node* produtoBuscado = buscar(raiz, codigoBuscar);
                 if (produtoBuscado != NULL) {
                     printf("Produto encontrado:\n");
-                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->codigo, produtoBuscado->nome, produtoBuscado->quantidade, produtoBuscado->preco);
+                    printf("Codigo: %d, Nome: %s, Quantidade: %d, Preco: R$ %.2f\n", produtoBuscado->produto->codigo, produtoBuscado->produto->nome, produtoBuscado->produto->quantidade, produtoBuscado->produto->preco);
                 } else {
                     printf("Produto com codigo %d nao encontrado!\n", codigoBuscar);
                 }
