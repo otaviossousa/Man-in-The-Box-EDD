@@ -139,6 +139,7 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
     novoNo->produto->preco = preco;
     novoNo->esquerda = NULL;
     novoNo->direita = NULL;
+    novoNo->altura = 0;
     return novoNo;
 }
 
@@ -149,24 +150,29 @@ Node* criarNo(int codigo, const char *nome, int quantidade, float preco) {
  *
  * 8 - Garanta que não é possível inserir produtos com códigos duplicados na árvore, nem quantidades ou
  * preços menores que zero.*/
+/* Função para inserir elementos na árvore */
+/* Função para inserir elementos na árvore */
 Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float preco) {
     // Verifica se algum dos valores inseridos é negativo
     if (codigo < 0 || quantidade < 0 || preco < 0) {
         printf("Nao e possivel inserir um produto com valores negativos.\n");
         return raiz; // Retorna a raiz original sem inserir o produto
-    } else if (raiz == NULL) { // Se a árvore estiver vazia, insere o produto como raiz
+    }
+
+    if (raiz == NULL) { // Se a árvore estiver vazia, insere o produto como raiz
         raiz = criarNo(codigo, nome, quantidade, preco);
         printf("Produto inserido com sucesso!\n");
         return raiz;
-    } else { // Se a árvore não estiver vazia, insere o produto em uma posição apropriada
-        if (codigo < raiz->produto->codigo) {
-            raiz->esquerda = inserir(raiz->esquerda, codigo, nome, quantidade, preco);
-        } else if (codigo > raiz->produto->codigo) {
-            raiz->direita = inserir(raiz->direita, codigo, nome, quantidade, preco);
-        } else { // Se o código já existir na árvore, exibe uma mensagem de aviso
-            printf("Produto com codigo %d ja existe na arvore.\n", codigo);
-        }
-        return raiz; // Retorna a raiz original
+    }
+
+    // Se a árvore não estiver vazia, insere o produto em uma posição apropriada
+    if (codigo < raiz->produto->codigo) {
+        raiz->esquerda = inserir(raiz->esquerda, codigo, nome, quantidade, preco);
+    } else if (codigo > raiz->produto->codigo) {
+        raiz->direita = inserir(raiz->direita, codigo, nome, quantidade, preco);
+    } else { // Se o código já existir na árvore, exibe uma mensagem de aviso
+        printf("Produto com codigo %d ja existe na arvore.\n", codigo);
+        return raiz; // Retorna a raiz original sem alterações
     }
 
     // Recalcula a altura de todos os nós entre a raiz e o novo nó inserido
@@ -175,7 +181,7 @@ Node* inserir(Node* raiz, int codigo, const char *nome, int quantidade, float pr
     // Verifica a necessidade de rebalancear a árvore
     raiz = balancear(raiz);
 
-    return raiz; // Retorna a raiz após o balanceamento
+    return raiz; // Retorna a nova raiz após o balanceamento
 }
 
 /* Função para remover um elemento da árvore
@@ -187,51 +193,48 @@ Node* remover(Node* raiz, int chave) {
     if (raiz == NULL) {
         printf("Valor nao encontrado!\n");
         return NULL;
-    } else { // Procura o nó a ser removido
-        if (raiz->produto->codigo == chave) {
-            // Remove nós folhas (nós sem filhos)
-            if (raiz->esquerda == NULL && raiz->direita == NULL) {
-                printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
-                free(raiz->produto);
-                free(raiz);
-                return NULL;
-            } else {
-                // Remove nós que possuem dois filhos
-                if (raiz->esquerda != NULL && raiz->direita != NULL) {
-                    Node *aux = raiz->esquerda;
-                    while (aux->direita != NULL)
-                        aux = aux->direita;
-                    raiz->produto->codigo = aux->produto->codigo;
-                    strcpy(raiz->produto->nome, aux->produto->nome);
-                    raiz->produto->quantidade = aux->produto->quantidade;
-                    raiz->produto->preco = aux->produto->preco;
-                    raiz->esquerda = remover(raiz->esquerda, chave);
-                    return raiz;
-                } else {
-                    // Remove nós que possuem apenas um filho
-                    Node *aux;
-                    if (raiz->esquerda != NULL)
-                        aux = raiz->esquerda;
-                    else
-                        aux = raiz->direita;
-                    printf("Removendo o produto: Codigo: %d, Nome: %s, Quantidade: %d, Preco: %.2f\n", raiz->produto->codigo, raiz->produto->nome, raiz->produto->quantidade, raiz->produto->preco);
-                    free(raiz->produto);
-                    free(raiz);
-                    return aux;
-                }
-            }
-        } else {
-            // Procura o nó a ser removido nas subárvores esquerda e direita
-            if (chave < raiz->produto->codigo)
-                raiz->esquerda = remover(raiz->esquerda, chave);
-            else
-                raiz->direita = remover(raiz->direita, chave);
-        }
     }
+
+    // Procura o nó a ser removido
+    if (chave < raiz->produto->codigo) {
+        raiz->esquerda = remover(raiz->esquerda, chave);
+    } else if (chave > raiz->produto->codigo) {
+        raiz->direita = remover(raiz->direita, chave);
+    } else { // Nó a ser removido encontrado
+        // Caso 1: Nó sem filhos ou com apenas um filho
+        if (raiz->esquerda == NULL) {
+            Node* temp = raiz->direita;
+            free(raiz->produto);
+            free(raiz);
+            return temp;
+        } else if (raiz->direita == NULL) {
+            Node* temp = raiz->esquerda;
+            free(raiz->produto);
+            free(raiz);
+            return temp;
+        }
+
+        // Caso 2: Nó com dois filhos
+        // Encontra o sucessor (menor valor na subárvore direita)
+        Node* temp = raiz->direita;
+        while (temp->esquerda != NULL) {
+            temp = temp->esquerda;
+        }
+        // Copia os dados do sucessor para este nó
+        raiz->produto->codigo = temp->produto->codigo;
+        strcpy(raiz->produto->nome, temp->produto->nome);
+        raiz->produto->quantidade = temp->produto->quantidade;
+        raiz->produto->preco = temp->produto->preco;
+        // Remove o sucessor
+        raiz->direita = remover(raiz->direita, temp->produto->codigo);
+    }
+
     // Recalcula a altura de todos os nós entre a raiz e o nó removido
-    raiz->altura = maior(alturaDoNo(raiz->esquerda), alturaDoNo(raiz->direita)) + 1;
+    raiz->altura = 1 + maior(alturaDoNo(raiz->esquerda), alturaDoNo(raiz->direita));
+
     // Verifica a necessidade de rebalancear a árvore
     raiz = balancear(raiz);
+
     return raiz;
 }
 
