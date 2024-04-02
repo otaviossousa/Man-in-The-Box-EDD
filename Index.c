@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /*  1 - Cada nó da árvore deve representar um produto, contendo os seguintes campos: código do produto, nome do produto,
     quantidade em estoque, preço unitário.
@@ -429,22 +430,55 @@ void imprimirArvore(Node* raiz, int espacos) {
     imprimirArvore(raiz->esquerda, espacos);
 }
 
+// Função para liberar a memória de todos os nós da árvore
+void liberarArvore(Node* raiz) {
+    // Verifica se a raiz é nula
+    if (raiz == NULL) {
+        return; // Se for nula, não há mais nós para liberar, então retorna
+    }
+
+    liberarArvore(raiz->esquerda); // Libera a memória dos nós da subárvore esquerda
+    liberarArvore(raiz->direita); // Libera a memória dos nós da subárvore direita
+    free(raiz->produto); // Libera a memória do produto armazenado no nó atual
+    free(raiz);  // Libera a memória do próprio nó atual
+}
+
+// Função para gerar um número aleatório entre min e max
+int rand_int(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
+// Função para criar uma árvore AVL balanceada com 7 elementos
+Node* gerarArvoreAleatoria() {
+    Node* raiz = NULL;
+    int i, codigo, quantidade;
+    float preco;
+    char nome[50];
+
+    // Semente para a geração de números aleatórios
+    srand(time(NULL));
+
+    // Insere 7 elementos aleatórios na árvore
+    for (i = 0; i < 7; i++) {
+        codigo = rand_int(1000, 9999); // Gera um código aleatório de 4 dígitos
+        sprintf(nome, "Produto%d", codigo); // Gera um nome aleatório baseado no código
+        quantidade = rand_int(1, 100); // Gera uma quantidade aleatória entre 1 e 100
+        preco = rand_int(1, 1000) / 10.0f; // Gera um preço aleatório entre 0.1 e 100.0
+        raiz = inserir(raiz, codigo, nome, quantidade, preco); // Insere o produto na árvore
+    }
+
+    return raiz;
+}
+
 int main() {
     Node* raiz = NULL; // Inicializa a raiz da árvore como nula
     int opcao; // Variável para armazenar a opção do menu
 
     // Loop do menu principal
     do {
-        printf("\n=== Menu ===\n");
-        printf("0. Sair\n");
-        printf("1. Inserir produto\n");
-        printf("2. Remover produto\n");
-        printf("3. Buscar produto\n");
-        printf("4. Listar produtos com preco dentro de uma faixa\n");
-        printf("5. Listar produtos com quantidade menor que um valor especificado\n");
-        printf("6. Calcular valor total do estoque\n");
-        printf("7. Imprimir arvore de produtos\n");
-        printf("Escolha uma opcao: ");
+        printf("\n============================== Menu =============================\n0. Sair\n1. Inserir produto\n2. Remover produto"
+               "\n3. Buscar produto\n4. Listar produtos com preco dentro de uma faixa\n5. Listar produtos com quantidade menor que um valor especificado\n"
+               "6. Calcular valor total do estoque\n7. Imprimir arvore de produtos\n8. Gerar Arvore Aleatoria\nEscolha uma opcao: ");
         scanf("%d", &opcao);
 
         switch (opcao) {
@@ -518,10 +552,17 @@ int main() {
                 printf("\nArvore de produtos:\n");
                 imprimirArvore(raiz, 0); // Chama a função para imprimir a árvore de produtos
                 break;
+            case 8:
+                liberarArvore(raiz); // Liberar a memória da árvore existente
+                raiz = gerarArvoreAleatoria(); // Gerar automaticamente uma nova árvore balanceada com 7 elementos
+                printf("\nNova arvore balanceada com 7 elementos gerada com sucesso!\n");
+                break;
             default:
-                printf("Opcao invalida!\n"); // Mensagem de opção inválida
+                printf("\nOpcao invalida!\n"); // Mensagem de opção inválida
         }
     } while (opcao != 0); // Repete até que a opção 0 (Sair) seja escolhida
 
+
+    liberarArvore(raiz); // Liberar a memória alocada para a árvore antes de encerrar o programa
     return 0;
 }
